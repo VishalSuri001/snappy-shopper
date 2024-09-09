@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\ShoppingStoreType;
 use Database\Seeders\ShoppingStoreTypeSeeder;
 use Database\Seeders\ShoppingStoreSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Illuminate\Support\Facades\DB;
 
 class StoreSearchControllerTest extends TestCase
 {
@@ -15,6 +17,11 @@ class StoreSearchControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Truncate relevant tables to reset auto-increment values
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('shopping_store_types')->truncate();
+        DB::table('shopping_stores')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         $this->seed(ShoppingStoreTypeSeeder::class);
         $this->seed(ShoppingStoreSeeder::class);
     }
