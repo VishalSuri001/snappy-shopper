@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\DB\StoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\ShoppingStore;
@@ -10,6 +11,12 @@ use Illuminate\Validation\ValidationException;
 
 class StoreDeliveryController extends Controller
 {
+    protected $storeService;
+
+    public function __construct(StoreService $storeService)
+    {
+        $this->storeService = $storeService;
+    }
     public function getStoresDeliveringToPostcode(Request $request)
     {
 
@@ -33,15 +40,7 @@ class StoreDeliveryController extends Controller
         $longitude = $validatedData['longitude'];
         $deliveryRadiusInMeters = 00.01 * 1609.34;
 
-        $stores = ShoppingStore::select('*', DB::raw("
-            ST_Distance_Sphere(
-                point(longitude, latitude),
-                point(?, ?)
-            ) AS distance
-        "))
-            ->having('distance', '<=', $deliveryRadiusInMeters)
-            ->setBindings([$longitude, $latitude])
-            ->get();
+        $stores = $this->storeService->getDeliverableStoresForCoordinates($latitude, $longitude, $deliveryRadiusInMeters);
 
         if ($stores->isEmpty()) {
             return response()->json(['message' => 'No stores delivering to this postcode', 'stores' => []], 200);

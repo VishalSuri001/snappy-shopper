@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use App\Models\ShoppingStore;
+use App\Services\DB\StoreService;
 use Illuminate\Validation\Rule;
 
 class StoreController extends Controller
 {
+    protected $storeService;
+
+    public function __construct(StoreService $storeService)
+    {
+        $this->storeService = $storeService;
+    }
+
     public function addStore(Request $request)
     {
         $validatedData = $request->validate([
@@ -22,8 +29,7 @@ class StoreController extends Controller
             'delivery_distance' => 'required|numeric|between:0,9.90',
         ]);
 
-        $store = new ShoppingStore($validatedData);
-        $store->save();
+        $store = $this->storeService->createStore($validatedData);
 
         return response()->json(['message' => 'Store added successfully!', 'store' => $store], 201);
     }

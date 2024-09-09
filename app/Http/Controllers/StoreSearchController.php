@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\DB\StoreService;
 
 class StoreSearchController extends Controller
 {
+    protected $storeService;
+
+    public function __construct(StoreService $storeService)
+    {
+        $this->storeService = $storeService;
+    }
+
     public function getNearbyStores(Request $request)
     {
         $request->validate([
@@ -19,17 +27,7 @@ class StoreSearchController extends Controller
         $longitude = $request->input('longitude');
         $distance = $request->input('distance');
 
-        $stores = DB::table('shopping_stores')
-            ->select('*', DB::raw("
-            (3959 * acos(
-                cos(radians($latitude)) * cos(radians(latitude)) *
-                cos(radians(longitude) - radians($longitude)) +
-                sin(radians($latitude)) * sin(radians(latitude))
-            )) AS distance
-        "))
-            ->having('distance', '<=', $distance)
-            ->orderBy('distance', 'asc')
-            ->get();
+        $stores = $this->storeService->getNearbyStores($latitude, $longitude, $distance);
 
         if ($stores->isEmpty()) {
             return response()->json([
@@ -37,7 +35,7 @@ class StoreSearchController extends Controller
                 'stores' => []
             ], 200);
         }
-        
+
         return response()->json([
             'message' => 'Stores found!',
             'stores' => $stores
