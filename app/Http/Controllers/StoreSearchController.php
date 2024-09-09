@@ -31,6 +31,16 @@ class StoreSearchController extends Controller
             ->orderBy('distance', 'asc')
             ->get();
 
-        return response()->json($stores);
+        if ($stores->isEmpty()) {
+            return response()->json([
+                'message' => 'No nearby stores found',
+                'stores' => []
+            ], 200);
+        }
+        
+        return response()->json([
+            'message' => 'Stores found!',
+            'stores' => $stores
+        ], 200);
     }
 }
