@@ -56,10 +56,7 @@ class SplitCsvJob implements ShouldQueue
                 $chunkFile = $this->dirPath . '/chunk_' . $chunkCount . '.csv';
                 $this->createChunkFile($chunkFile, $header, $rows);
                 ProcessCSVChunk::dispatch($chunkFile);
-                $chunkCount++;
-                if($chunkCount >= 20){
-                    exit;
-                }
+                $chunkCount++;                
                 $rows = [];
             }
         }
