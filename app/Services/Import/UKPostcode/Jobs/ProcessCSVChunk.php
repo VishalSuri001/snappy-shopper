@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Services\Import\UKPostcode\Jobs;
 
+use App\Jobs\Exception;
 use App\Models\FailedRecord;
 use App\Models\UKPostCode;
 use Carbon\Carbon;
